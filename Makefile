@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall `sdl2-config --cflags`
+CFLAGS=-std=c99 -Wall `sdl2-config --cflags`
 LIBS=`sdl2-config --libs`
 TARGET=gamepad-macro-daemon
 

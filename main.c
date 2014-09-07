@@ -1,3 +1,4 @@
+#define _XOPEN_SOURCE 700
 #include "main.h"
 
 int main(int argc, char* argv[]) {
@@ -44,7 +45,7 @@ void add_controller(int32_t deviceIndex) {
         }
     }
 
-    printf("No more controllers can be added.\n");
+    printf("No more controllers can be added\n");
 }
 
 SDL_GameController* get_controller(SDL_JoystickID id) {
@@ -76,16 +77,46 @@ uint8_t guide_is_down(SDL_GameController* controller) {
 }
 
 void init() {
+    init_pid_file();
+
     if (SDL_Init(SDL_INIT_GAMECONTROLLER) != 0) {
         fprintf(stderr, "\nUnable to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
+    atexit(remove_pid_file);
     atexit(SDL_Quit);
 
     MAX_CONTROLLERS = 4;
     controllers = malloc(sizeof(SDL_GameController*) * MAX_CONTROLLERS);
     for (int i = 0; i < MAX_CONTROLLERS; i++) {
         controllers[i] = NULL;
+    }
+}
+
+void init_pid_file() {
+    PID_FILENAME = "/tmp/gamepad-macro-daemon.pid";
+
+    // Open the PID file for writing (or create it if it does not exist)
+    pidFileStream = fopen(PID_FILENAME, "w");
+
+    // If the PID file was not opened successfully
+    if (pidFileStream == NULL) {
+        fprintf(stderr, "Cannot open PID file %s for writing\n", PID_FILENAME);
+        exit(1);
+    }
+
+    // If the PID file is locked
+    if (lockf(fileno(pidFileStream), F_TEST, 0) == -1) {
+        fprintf(stderr, "Another instance is already running\n");
+        exit(1);
+    }
+    else {
+        // Lock the PID file
+        lockf(fileno(pidFileStream), F_LOCK, 0);
+
+        // Write the PID to the PID file
+        fprintf(pidFileStream, "%d\n", getpid());
+        fflush(pidFileStream);
     }
 }
 
@@ -112,15 +143,6 @@ void process_button(SDL_JoystickID jsId, SDL_GameControllerButton button) {
     }
 }
 
-void vacate_controller_array_slot(SDL_GameController* controller) {
-    for (int i = 0; i < MAX_CONTROLLERS; i++) {
-        if (controllers[i] == controller) {
-            controllers[i] = NULL;
-            return;
-        }
-    }
-}
-
 void quit() {
     free(controllers);
     exit(0);
@@ -135,5 +157,24 @@ void remove_controller(SDL_JoystickID id) {
         // Close the controller
         SDL_GameControllerClose(controller);
         vacate_controller_array_slot(controller);
+    }
+}
+
+void remove_pid_file() {
+    // Close the PID file (and release the lock)
+    fclose(pidFileStream);
+
+    // Delete the PID file
+    if (unlink(PID_FILENAME) != 0) {
+        fprintf(stderr, "Cannot delete PID file %s\n", PID_FILENAME);
+    }
+}
+
+void vacate_controller_array_slot(SDL_GameController* controller) {
+    for (int i = 0; i < MAX_CONTROLLERS; i++) {
+        if (controllers[i] == controller) {
+            controllers[i] = NULL;
+            return;
+        }
     }
 }

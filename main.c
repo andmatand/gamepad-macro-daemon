@@ -133,8 +133,8 @@ void process_button(SDL_JoystickID jsId, SDL_GameControllerButton button) {
                     system("/usr/bin/steam");
                     break;
                 case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-                    printf("Launching XBMC\n");
-                    system("/usr/bin/xbmc");
+                    printf("Launching Kodi\n");
+                    system("/usr/bin/kodi");
                     break;
                 default:
                     break;

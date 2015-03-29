@@ -6,4 +6,4 @@ A daemon that allows for the launching of some predefined applications via Xbox
 
 ##Commands
 * `Guide` + `LB`: Launch Steam
-* `Guide` + `RB`: Launch XBMC
+* `Guide` + `RB`: Launch Kodi (a.k.a. XBMC)

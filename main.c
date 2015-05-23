@@ -3,6 +3,7 @@
 
 int main(int argc, char* argv[]) {
     init();
+    if (argc > 1) load_mappings(argv[1]);
 
     printf("Listening for gamepads...\n");
     while (1) {
@@ -117,6 +118,16 @@ void init_pid_file() {
         // Write the PID to the PID file
         fprintf(pidFileStream, "%d\n", getpid());
         fflush(pidFileStream);
+    }
+}
+
+void load_mappings(const char* filename) {
+    int result = SDL_GameControllerAddMappingsFromFile(filename);
+    if (result == -1) {
+        printf("Error loading controller mappings\n");
+    }
+    else {
+        printf("Loaded %d controller mappings\n", result);
     }
 }
 

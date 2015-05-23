@@ -15,6 +15,7 @@ SDL_GameController* get_controller(SDL_JoystickID);
 SDL_JoystickID get_joystick_id(SDL_GameController*);
 void init();
 void init_pid_file();
+void load_mappings(const char* filename);
 void process_button(SDL_JoystickID, SDL_GameControllerButton);
 void quit();
 void remove_pid_file();

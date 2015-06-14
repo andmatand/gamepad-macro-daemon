@@ -147,6 +147,10 @@ void process_button(SDL_JoystickID jsId, SDL_GameControllerButton button) {
                     printf("Launching Kodi\n");
                     system("/usr/bin/kodi");
                     break;
+                case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+                    printf("Launching RetroArch\n");
+                    system("/usr/bin/retroarch");
+                    break;
                 default:
                     break;
             }
